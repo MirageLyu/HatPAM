@@ -35,6 +35,7 @@ class NLPLModel(nn.Module):
         self.gnn_layer2 = ggnn_utils.GraphClsGGNN(gnn_ln_in_d, 1, 5, 1, 6).to(device)
         self.gnn_linear = nn.Linear(gnn_ln_in_d, gnn_ln_out_d)
         self.linear2 = nn.Linear(nl_od + gnn_ln_out_d, whole_out_d)
+        # self.dropout = nn.Dropout(0.1)
         # self.linear2 = nn.Linear(gnn_ln_out_d, whole_out_d)
 
     def forward(self, nl_input_ids, data):
@@ -48,7 +49,7 @@ class NLPLModel(nn.Module):
         # print(pl_output.shape)
         nl_output = nl_output.view(nl_output.shape[-1])
         out_concat = torch.cat((nl_output, pl_output, pl_output2), 0)
-        out = F.softmax(self.linear2(out_concat))
+        out = F.softmax(self.linear2(self.dropout(out_concat)))
         return out.view(1, out.shape[-1])
         # return out
 
